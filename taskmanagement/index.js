@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 // const bookRoutes = require("./routers/bookRouter");
 const userRouter = require("./routers/userRouter");
-const productRouter = require("./routers/bookRouter");
+const taskRouter = require("./routers/taskRouter");
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -19,10 +19,10 @@ const corsOptions = {
 // Enable CORS with the specified options
 app.use(cors(corsOptions));
 mongoose
-  .connect("mongodb://127.0.0.1:27017/bookdb")
+  .connect("mongodb://127.0.0.1:27017/taskdb")
   .then(() => {
     console.log("Database connected");
-    app.listen(8080, () => {
+    app.listen(8081, () => {
       console.log("API is running in PORT:8080");
     });
   })
@@ -30,5 +30,5 @@ mongoose
     console.log(error);
   });
   app.use("/user", userRouter);
-  app.use("/book", productRouter);
+  app.use("/tasks", taskRouter);
 

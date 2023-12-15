@@ -1,7 +1,7 @@
-//userController.js
-
 const { generateToken } = require('../authUtils');
 const User = require('../models/userModel');
+
+
 
 const getUserByUsernameAndPassword = async (req, res) => {
   try {
@@ -48,6 +48,5 @@ module.exports = {
   addUser,
   getAllUsers
 };
-
 
 

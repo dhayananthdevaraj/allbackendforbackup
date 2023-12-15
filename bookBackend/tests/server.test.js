@@ -4,14 +4,9 @@ const { getUserByUsernameAndPassword, getAllUsers, addUser } = require("../contr
 const User = require("../models/userModel");
 const { validateToken } = require('../authUtils');
 const Book = require("../models/bookModel");
-const { getAllBooks, getBooksByUserId, updateBook, deleteBook, getBookById, addBook } = require("../controllers/vehicleController");
-
-
-
+const { getAllBooks, getBooksByUserId, updateBook, deleteBook, getBookById, addBook } = require("../controllers/bookController");
 
 describe('getUserByUsernameAndPassword', () => {
-
-
   test('getuserbyusernameandpassword_should_return_invalid_credentials_with_a_200_status_code', async () => {
     // Sample user credentials
     const userCredentials = {
@@ -282,7 +277,7 @@ describe('User Model Schema Validation', () => {
 });
 
 describe('getAllBooks', () => {
-  test('getAllBooks_should_return_with_a_200_status_code', async () => {
+  test('get_all_books_should_return_with_a_200_status_code', async () => {
     // Sample book data
     const booksData = [
       {
@@ -290,7 +285,6 @@ describe('getAllBooks', () => {
         title: 'Book 1',
         genre: 'Fiction',
         description: 'Book 1 description',
-        coverImage: 'https://example.com/book1-cover.jpg',
         publicationYear: 2022,
         pageCount: 300,
         availableCopies: 5,
@@ -301,7 +295,6 @@ describe('getAllBooks', () => {
         title: 'Book 2',
         genre: 'Non-fiction',
         description: 'Book 2 description',
-        coverImage: 'https://example.com/book2-cover.jpg',
         publicationYear: 2021,
         pageCount: 250,
         availableCopies: 10,
@@ -332,7 +325,7 @@ describe('getAllBooks', () => {
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
-  test('getAllBooks_should_return_books_and_respond_with_a_200_status_code', async () => {
+  test('get_all_books_should_return_books_and_respond_with_a_200_status_code', async () => {
     // Sample book data
     const booksData = [
       {
@@ -340,7 +333,6 @@ describe('getAllBooks', () => {
         title: 'Book 1',
         genre: 'Fiction',
         description: 'Book 1 description',
-        coverImage: 'https://example.com/book1-cover.jpg',
         publicationYear: 2022,
         pageCount: 300,
         availableCopies: 5,
@@ -351,7 +343,6 @@ describe('getAllBooks', () => {
         title: 'Book 2',
         genre: 'Non-fiction',
         description: 'Book 2 description',
-        coverImage: 'https://example.com/book2-cover.jpg',
         publicationYear: 2021,
         pageCount: 250,
         availableCopies: 10,
@@ -384,7 +375,7 @@ describe('getAllBooks', () => {
     expect(res.json).toHaveBeenCalledWith(booksData);
   });
 
-  test('getAllBooks_should_handle_errors_and_respond_with_a_500_status_code_and_an_error_message', async () => {
+  test('get_all_books_should_handle_errors_and_respond_with_a_500_status_code_and_an_error_message', async () => {
     // Mock an error to be thrown when calling Book.find
     const error = new Error('Database error');
 
@@ -411,7 +402,7 @@ describe('getAllBooks', () => {
   });
 });
 describe('getBookByUserId', () => {
-  test('getBookByUserId_should_return_books_for_a_valid_user_id_and_respond_with_a_200_status_code', async () => {
+  test('get_book_by_user_id_should_return_books_for_a_valid_user_id_and_respond_with_a_200_status_code', async () => {
     // Sample user ID and book data
     const userId = 'user123';
     const booksData = [
@@ -420,7 +411,6 @@ describe('getBookByUserId', () => {
         title: 'Book 1',
         genre: 'Fiction',
         description: 'Book 1 description',
-        coverImage: 'https://example.com/book1-cover.jpg',
         publicationYear: 2022,
         pageCount: 300,
         availableCopies: 5,
@@ -431,7 +421,6 @@ describe('getBookByUserId', () => {
         title: 'Book 2',
         genre: 'Non-fiction',
         description: 'Book 2 description',
-        coverImage: 'https://example.com/book2-cover.jpg',
         publicationYear: 2021,
         pageCount: 250,
         availableCopies: 10,
@@ -464,7 +453,7 @@ describe('getBookByUserId', () => {
     expect(res.json).toHaveBeenCalledWith(booksData);
   });
 
-  test('getBookByUserId_should_handle_errors_and_respond_with_a_500_status_code_and_an_error_message', async () => {
+  test('get_book_by_user_id_should_handle_errors_and_respond_with_a_500_status_code_and_an_error_message', async () => {
     // Mock an error to be thrown when calling Book.find
     const error = new Error('Database error');
 
@@ -494,7 +483,7 @@ describe('getBookByUserId', () => {
   });
 });
 describe('deleteBook', () => {
-  test('deleteBook_should_delete_a_book_and_respond_with_a_200_status_code_and_success_message', async () => {
+  test('delete_book_should_delete_a_book_and_respond_with_a_200_status_code_and_success_message', async () => {
     // Sample book ID to be deleted
     const bookId = 'book123';
 
@@ -521,7 +510,7 @@ describe('deleteBook', () => {
     expect(res.json).toHaveBeenCalledWith({ message: 'Book deleted successfully' });
   });
 
-  test('deleteBook_should_handle_not_finding_a_book_and_respond_with_a_404_status_code', async () => {
+  test('delete_book_should_handle_not_finding_a_book_and_respond_with_a_404_status_code', async () => {
     // Mock Express request and response objects
     const req = { params: { id: 'nonExistentBook' } };
     const res = {
@@ -541,7 +530,7 @@ describe('deleteBook', () => {
     expect(res.json).toHaveBeenCalledWith({ message: 'Book not found' });
   });
 
-  test('deleteBook_should_handle_errors_and_respond_with_a_500_status_code_and_an_error_message', async () => {
+  test('delete_book_should_handle_errors_and_respond_with_a_500_status_code_and_an_error_message', async () => {
     // Mock an error to be thrown when calling Book.findByIdAndDelete
     const error = new Error('Database error');
 
@@ -565,14 +554,13 @@ describe('deleteBook', () => {
   });
 });
 describe('updateBook', () => {
-  test('updateBook_should_update_a_book_and_respond_with_a_200_status_code_and_success_message', async () => {
+  test('update_book_should_update_a_book_and_respond_with_a_200_status_code_and_success_message', async () => {
     // Sample book ID and updated book data
     const bookId = 'book123';
     const updatedBookData = {
       title: 'Updated Book',
       genre: 'Fiction',
       description: 'Updated book description',
-      coverImage: 'https://example.com/updated-book-cover.jpg',
       publicationYear: 2023,
       pageCount: 200,
       availableCopies: 20,
@@ -598,7 +586,7 @@ describe('updateBook', () => {
     expect(res.json).toHaveBeenCalledWith({ message: 'Book updated successfully' });
   });
 
-  test('updateBook_should_handle_not_finding_a_book_and_respond_with_a_404_status_code', async () => {
+  test('update_book_should_handle_not_finding_a_book_and_respond_with_a_404_status_code', async () => {
     // Mock Express request and response objects
     const req = { params: { id: 'nonExistentBook' }, body: {} };
     const res = {
@@ -618,7 +606,7 @@ describe('updateBook', () => {
     expect(res.json).toHaveBeenCalledWith({ message: 'Book not found' });
   });
 
-  test('updateBook_should_handle_errors_and_respond_with_a_500_status_code_and_an_error_message', async () => {
+  test('update_book_should_handle_errors_and_respond_with_a_500_status_code_and_an_error_message', async () => {
     // Mock an error to be thrown when calling Book.findByIdAndUpdate
     const error = new Error('Database error');
 
@@ -644,7 +632,7 @@ describe('updateBook', () => {
 
 
 describe('getBookById', () => {
-  test('getBookById_should_return_a_book_with_a_200_status_code', async () => {
+  test('get_book_by_id_should_return_a_book_with_a_200_status_code', async () => {
     // Sample book ID and corresponding book
     const bookId = 'book123';
     const bookData = {
@@ -652,7 +640,6 @@ describe('getBookById', () => {
       title: 'Sample Book',
       genre: 'Fiction',
       description: 'Sample book description',
-      coverImage: 'https://example.com/sample-image.jpg',
       publicationYear: 2022,
       pageCount: 300,
       availableCopies: 15,
@@ -677,7 +664,7 @@ describe('getBookById', () => {
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
-  test('getBookById_should_return_a_book_with_an_exact_response_object', async () => {
+  test('get_book_by_id_should_return_a_book_with_an_exact_response_object', async () => {
     // Sample book ID and corresponding book
     const bookId = 'book123';
     const bookData = {
@@ -685,7 +672,6 @@ describe('getBookById', () => {
       title: 'Sample Book',
       genre: 'Fiction',
       description: 'Sample book description',
-      coverImage: 'https://example.com/sample-image.jpg',
       publicationYear: 2022,
       pageCount: 300,
       availableCopies: 15,
@@ -710,7 +696,7 @@ describe('getBookById', () => {
     expect(res.json).toHaveBeenCalledWith(bookData);
   });
 
-  test('getBookById_should_return_book_not_found_with_a_200_status_code', async () => {
+  test('get_book_by_id_should_return_book_not_found_with_a_200_status_code', async () => {
     // Mock Express request and response objects
     const req = { params: { id: 'nonExistentBook' } };
 
@@ -731,7 +717,7 @@ describe('getBookById', () => {
     expect(res.json).toHaveBeenCalledWith({ message: 'Cannot find any book' });
   });
 
-  test('getBookById_should_handle_errors_and_respond_with_a_500_status_code_and_an_error_message', async () => {
+  test('get_book_by_id_should_handle_errors_and_respond_with_a_500_status_code_and_an_error_message', async () => {
     // Mock an error to be thrown when calling Book.findById
     const error = new Error('Database error');
 
@@ -757,13 +743,12 @@ describe('getBookById', () => {
 });
 
 describe('addBook', () => {
-  test('addBook_should_add_a_book_and_respond_with_a_200_status_code_and_success_message', async () => {
+  test('add_book_should_add_a_book_and_respond_with_a_200_status_code_and_success_message', async () => {
     // Sample book data to be added
     const bookToAdd = {
       title: 'New Book',
       genre: 'Fantasy',
       description: 'New book description',
-      coverImage: 'https://example.com/new-book-image.jpg',
       publicationYear: 2023,
       pageCount: 350,
       availableCopies: 10,
@@ -789,7 +774,7 @@ describe('addBook', () => {
     expect(res.json).toHaveBeenCalledWith({ message: 'Book added successfully' });
   });
 
-  test('addBook_should_handle_errors_and_respond_with_a_500_status_code_and_an_error_message', async () => {
+  test('add_book_should_handle_errors_and_respond_with_a_500_status_code_and_an_error_message', async () => {
     // Mock an error to be thrown when calling Book.create
     const error = new Error('Database error');
 
@@ -820,7 +805,6 @@ describe('Book_Schema_Validation', () => {
       title: 'Sample Book',
       genre: 'Fiction',
       description: 'A sample book description.',
-      coverImage: 'https://example.com/sample-cover.jpg',
       publicationYear: 2022,
       pageCount: 300,
       availableCopies: 10,
@@ -843,7 +827,6 @@ describe('Book_Schema_Validation', () => {
       title: 'Invalid Book',
       genre: 'Non-Fiction',
       description: 'An invalid book description.',
-      coverImage: 'https://example.com/invalid-cover.jpg',
       publicationYear: 'InvalidYear',
       pageCount: 150,
       availableCopies: 5,

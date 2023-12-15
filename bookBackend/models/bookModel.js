@@ -15,10 +15,6 @@ const bookSchema = new mongoose.Schema({
     required: true,
     maxlength: 1000, // Maximum description length
   },
-  coverImage: {
-    type: String,
-    required: true,
-  },
   publicationYear: {
     type: Number,
     required: true,

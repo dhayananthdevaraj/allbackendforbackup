@@ -2,13 +2,14 @@ const Book = require('../models/bookModel');
 
 const getAllBooks = async (req, res) => {
   try {
+    console.log("req.body",req.body);
     const sortValue = req.body.sortValue || 1; // Default to ascending order if not provided
     const search = req.body.searchValue || ''; // Default to empty string if not provided
     const searchRegex = new RegExp(search, 'i'); // Case-insensitive search regex
-
+console.log("search",search);
     const books = await Book.find({ title: searchRegex })
       .sort({ publicationYear: parseInt(sortValue) });
-
+console.log("books",books);
     res.status(200).json(books);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -19,12 +20,10 @@ const getBookById = async (req, res) => {
   try {
     const { id } = req.params;
     const book = await Book.findById(id);
-
     if (!book) {
       res.status(200).json({ message: 'Cannot find any book' });
       return;
     }
-
     res.status(200).json(book);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -34,8 +33,9 @@ const getBookById = async (req, res) => {
 const addBook = async (req, res) => {
   try {
     const book = await Book.create(req.body);
-    res.status(200).json({ message: 'Book added successfully', bookId: book._id });
+    res.status(200).json({ message: 'Book added successfully' });
   } catch (error) {
+    console.log({error: error.message});
     res.status(500).json({ message: error.message });
   }
 };
