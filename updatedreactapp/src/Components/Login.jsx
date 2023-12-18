@@ -70,7 +70,9 @@ function Login() {
           username: formData.username,
           password: formData.password,
         };
-        console.log("requestObject", requestObject);  
+
+        console.log("requestObject", requestObject);
+
         const response = await axios.post(
           "https://8080-abfdabeabcbaedbbdbffcedacbfdaeffdedfbedfefba.premiumproject.examly.io/user/login",
           requestObject
@@ -79,12 +81,16 @@ function Login() {
         // Handle the response herefv
         // If the login is successful, you can navigate to the desired page
         if (response.status == 200) {
+          // localStorage.setItem("role",response.data.role)
+          // localStorage.setItem("userId",response.data._id)
+          // localStorage.setItem("userName",response.data.username)
           localStorage.setItem("isAuthenticated", "true");
           localStorage.setItem("token",response.data.token);
-      
+          
+
           let userData = {
             role: response.data.role,
-            userId: response.data._id,
+            userId: response.data.id,
             userName: response.data.username,
             isAuthenticated: true,
           };

@@ -632,4 +632,6 @@ describe('getAllVehicle', () => {
     });
   });
   
-  
+  git remote add origin https://github.com/dhayananthdevaraj/allbackendforbackup.git
+git branch -M main
+git push -u origin main

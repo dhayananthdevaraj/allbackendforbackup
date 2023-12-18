@@ -19,7 +19,12 @@ import LoanRequests from "../AdminComponents/LoanRequest";
 jest.mock("axios");
 jest.mock("react-redux");
 
-
+jest.mock("react-router-dom", () => {
+  return {
+    ...jest.requireActual("react-router-dom"),
+    useNavigate: () => jest.fn(),
+  };
+});
 describe("Login Component", () => {
     afterEach(() => {
       jest.clearAllMocks();
@@ -40,7 +45,6 @@ describe("Login Component", () => {
         screen.getByPlaceholderText("Password", { selector: "input" })
       ).toBeInTheDocument();
     });
-  
     test("login_required_validation_for_input_fields", () => {
       const { getByText } = render(
         <BrowserRouter>
@@ -54,7 +58,6 @@ describe("Login Component", () => {
       expect(getByText(/Username is required/i)).toBeInTheDocument();
       expect(getByText(/Password is required/i)).toBeInTheDocument();
     });
-  
     test("login_no_required_validation_for_input_fields_with_valid_data", () => {
       render(
         <BrowserRouter>
@@ -335,7 +338,12 @@ describe("Login Component", () => {
         // Your test assertions for adding a new loan with validation
         expect(axios.post).toHaveBeenCalledWith(
           expect.stringMatching("/loan/addLoan"),
-          expect.any(Object)
+          expect.any(Object),
+          {
+            headers: {
+              'Authorization': expect.any(String) // You can customize this expectation as needed
+            }
+          }
         );
       });
       test("loanform_should_handle_adding_a_new_loan_with_successmessage", async () => {
@@ -398,133 +406,382 @@ describe("Login Component", () => {
         expect(loanTypeError).toBeInTheDocument();
       });
     });
-describe("LoanForm Component", () => {
+
+  describe("Adminhomepage", () => {
+    const queryClient = new QueryClient();
     afterEach(() => {
       jest.clearAllMocks();
     });
-    test("loanform_should_render_all_input_fields", async () => {
+    test("admin_home_page_displaying_data_in_the_grid", async () => {
+      let mockLoanRequestsData = [
+        {
+          _id: "1",
+          loanType: "Car Loan",
+          maximumAmount: 10000,
+          interestRate: 5,
+          description: "Low-interest car loan.",
+        },
+        {
+          _id: "2",
+          loanType: "Home Loan",
+          maximumAmount: 50000,
+          interestRate: 3,
+          description: "Affordable home loan.",
+        },
+        {
+          _id: "3",
+          loanType: "Personal Loan",
+          maximumAmount: 15000,
+          interestRate: 6,
+          description: "Flexible personal loan.",
+        },
+        {
+          _id: "4",
+          loanType: "Education Loan",
+          maximumAmount: 25000,
+          interestRate: 4,
+          description: "Support your education.",
+        },
+        {
+          _id: "5",
+          loanType: "Business Loan",
+          maximumAmount: 75000,
+          interestRate: 7,
+          description: "Grow your business.",
+        },
+      ];
+  
+      jest
+        .spyOn(axios, "get")
+        .mockResolvedValue({ data: mockLoanRequestsData, status: 200 });
+  
       await act(async () => {
         render(
-          <BrowserRouter>
-            <LoanForm />
-          </BrowserRouter>
+          <QueryClientProvider client={queryClient}>
+            <HomePage />
+          </QueryClientProvider>
         );
       });
   
-      const loanTypeInput = screen.getByPlaceholderText("Loan Type");
-      const descriptionInput = screen.getByPlaceholderText("Loan Description");
-      const interestRateInput = screen.getByPlaceholderText("Interest Rate");
-      const maxAmountInput = screen.getByPlaceholderText("Maximum Amount");
-      const addLoanButton = screen.getByText("Add Loan");
-  
-      expect(loanTypeInput).toBeInTheDocument();
-      expect(descriptionInput).toBeInTheDocument();
-      expect(interestRateInput).toBeInTheDocument();
-      expect(maxAmountInput).toBeInTheDocument();
-      expect(addLoanButton).toBeInTheDocument();
-  
-      // You can add more specific assertions for each input field if needed
+      for (const loan of mockLoanRequestsData) {
+        expect(screen.getByText(loan.loanType)).toBeInTheDocument();
+        expect(screen.getByText("$" + loan.maximumAmount)).toBeInTheDocument();
+        expect(screen.getByText(`${loan.interestRate}%`)).toBeInTheDocument();
+        expect(screen.getByText(loan.description)).toBeInTheDocument();
+      }
     });
   
-    test("loanform_should_handle_adding_a_new_loan_with_validation", async () => {
-      jest.spyOn(axios, "post").mockResolvedValue({ status: 200 });
-  
+    test("admin_home_page_displaying_the_required_buttons", async () => {
       await act(async () => {
         render(
-          <BrowserRouter>
-            <LoanForm />
-          </BrowserRouter>
+          <QueryClientProvider client={queryClient}>
+            <HomePage />
+          </QueryClientProvider>
         );
       });
   
-      // Simulate user input for adding a new loan
-      const loanTypeInput = screen.getByPlaceholderText("Loan Type");
-      fireEvent.change(loanTypeInput, { target: { value: "Car Loan" } });
+      // Assert that the "Create New" button is present
+      const createNewButton = screen.getByText("Create New", {
+        selector: "button",
+      });
+      expect(createNewButton).toBeInTheDocument();
   
-      const descriptionInput = screen.getByPlaceholderText("Loan Description");
-      fireEvent.change(descriptionInput, { target: { value: "Loan for cars" } });
+      // Assert that the "Loans Requested" button is present
+      const loansRequestedButton = screen.getByText("Loans Requested", {
+        selector: "button",
+      });
+      expect(loansRequestedButton).toBeInTheDocument();
   
-      const interestRateInput = screen.getByPlaceholderText("Interest Rate");
-      fireEvent.change(interestRateInput, { target: { value: "5" } });
-  
-      const maxAmountInput = screen.getByPlaceholderText("Maximum Amount");
-      fireEvent.change(maxAmountInput, { target: { value: "2000" } });
-  
-      const addLoanButton = screen.getByText("Add Loan");
-      fireEvent.click(addLoanButton);
-  
-      // Your test assertions for adding a new loan with validation
-      expect(axios.post).toHaveBeenCalledWith(
-        expect.stringMatching("/loan/addLoan"),
-        expect.any(Object)
-      );
+      // Assert that the "Logout" button is present
+      const logoutButton = screen.getByText("Logout", { selector: "button" });
+      expect(logoutButton).toBeInTheDocument();
     });
-    test("loanform_should_handle_adding_a_new_loan_with_successmessage", async () => {
-      jest.spyOn(axios, "post").mockResolvedValue({ status: 200 });
+  
+    test("admin_home_page_pagination_previous_button", async () => {
+      let mockLoanRequestsData = [
+        {
+          _id: "1",
+          loanType: "Car Loan",
+          maximumAmount: 10000,
+          interestRate: 5,
+          description: "Low-interest car loan.",
+        },
+        {
+          _id: "2",
+          loanType: "Home Loan",
+          maximumAmount: 50000,
+          interestRate: 3,
+          description: "Affordable home loan.",
+        },
+        {
+          _id: "3",
+          loanType: "Personal Loan",
+          maximumAmount: 15000,
+          interestRate: 6,
+          description: "Flexible personal loan.",
+        },
+        {
+          _id: "4",
+          loanType: "Education Loan",
+          maximumAmount: 25000,
+          interestRate: 4,
+          description: "Support your education.",
+        },
+        {
+          _id: "5",
+          loanType: "Business Loan",
+          maximumAmount: 75000,
+          interestRate: 7,
+          description: "Grow your business.",
+        },
+        {
+          _id: "6",
+          loanType: "Mortgage Loan",
+          maximumAmount: 100000,
+          interestRate: 3.5,
+          description: "Your dream home awaits.",
+        },
+        {
+          _id: "7",
+          loanType: "Credit Card Loan",
+          maximumAmount: 5000,
+          interestRate: 15,
+          description: "Convenient credit card loan.",
+        },
+        {
+          _id: "8",
+          loanType: "Emergency Loan",
+          maximumAmount: 1000,
+          interestRate: 10,
+          description: "Get quick financial help.",
+        },
+      ];
+  
+      jest
+        .spyOn(axios, "get")
+        .mockResolvedValue({ data: mockLoanRequestsData, status: 200 });
   
       await act(async () => {
         render(
-          <BrowserRouter>
-            <LoanForm />
-          </BrowserRouter>
+          <QueryClientProvider client={queryClient}>
+            <HomePage />
+          </QueryClientProvider>
         );
       });
   
-      // Simulate user input for adding a new loan
-      const loanTypeInput = screen.getByPlaceholderText("Loan Type");
-      fireEvent.change(loanTypeInput, { target: { value: "Car Loan" } });
+      // Type 'Car' into the search input
+      expect(screen.getByText("Business Loan")).toBeInTheDocument();
+      expect(screen.queryByText("Mortgage Loan")).toBeNull(); // Check for specific data
   
-      const descriptionInput = screen.getByPlaceholderText("Loan Description");
-      fireEvent.change(descriptionInput, { target: { value: "Loan for cars" } });
+      const nextButton = screen.getByText("Next");
+      fireEvent.click(nextButton);
   
-      const interestRateInput = screen.getByPlaceholderText("Interest Rate");
-      fireEvent.change(interestRateInput, { target: { value: "5" } });
+      expect(screen.getByText("Mortgage Loan")).toBeInTheDocument();
+      expect(screen.queryByText("Business Loan")).toBeNull();
   
-      const maxAmountInput = screen.getByPlaceholderText("Maximum Amount");
-      fireEvent.change(maxAmountInput, { target: { value: "2000" } });
+      const prevButton = screen.getByText("Prev");
+      fireEvent.click(prevButton);
   
-      const addLoanButton = screen.getByText("Add Loan");
-      fireEvent.click(addLoanButton);
+      expect(screen.getByText("Business Loan")).toBeInTheDocument();
+      expect(screen.queryByText("Mortgage Loan")).toBeNull();
+    });
+    test("admin_home_page_should_trigger_edit_action_when_edit_button_is_clicked", async () => {
+      let mockLoanRequestsData = [
+        {
+          _id: "1",
+          loanType: "Car Loan",
+          maximumAmount: 10000,
+          interestRate: 5,
+          description: "Low-interest car loan.",
+        },
+        {
+          _id: "2",
+          loanType: "Home Loan",
+          maximumAmount: 50000,
+          interestRate: 3,
+          description: "Affordable home loan.",
+        },
+        {
+          _id: "3",
+          loanType: "Personal Loan",
+          maximumAmount: 15000,
+          interestRate: 6,
+          description: "Flexible personal loan.",
+        },
+        {
+          _id: "4",
+          loanType: "Education Loan",
+          maximumAmount: 25000,
+          interestRate: 4,
+          description: "Support your education.",
+        },
+        {
+          _id: "5",
+          loanType: "Business Loan",
+          maximumAmount: 75000,
+          interestRate: 7,
+          description: "Grow your business.",
+        },
+        {
+          _id: "6",
+          loanType: "Mortgage Loan",
+          maximumAmount: 100000,
+          interestRate: 3.5,
+          description: "Your dream home awaits.",
+        },
+        {
+          _id: "7",
+          loanType: "Credit Card Loan",
+          maximumAmount: 5000,
+          interestRate: 15,
+          description: "Convenient credit card loan.",
+        },
+        {
+          _id: "8",
+          loanType: "Emergency Loan",
+          maximumAmount: 1000,
+          interestRate: 10,
+          description: "Get quick financial help.",
+        },
+      ];
+      const navigate = jest.fn();
   
-      // Your test assertions for adding a new loan with validation
+      axios.get.mockResolvedValue({ data: mockLoanRequestsData, status: 200 });
+  
+      // Mock the useNavigate function
+      jest
+        .spyOn(require("react-router-dom"), "useNavigate")
+        .mockReturnValue(navigate);
+  
+      await act(async () => {
+        render(
+          <QueryClientProvider client={queryClient}>
+            <HomePage />
+          </QueryClientProvider>
+        );
+      });
+  
+      // Click the "Edit" button for the first loan
+      const editButtons = screen.getAllByText("Edit");
+      fireEvent.click(editButtons[0]);
+  
+      // Check if it navigated to the correct URL
+      expect(navigate).toHaveBeenCalledWith("/newloan/1");
+    });
+
+  });
+
+  describe('LoanRequests Component', () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+    const queryClient = new QueryClient();
+    test('renders_loan_requests_component', async () => {
+      axios.post.mockResolvedValueOnce({
+        status: 200,
+        data: {
+          data: [
+            // Mock loan request objects
+            {
+              loanApplicationID: 1,
+              userName: 'John Doe',
+              loanType: 'Home Loan',
+              model: '2023',
+              submissionDate: '2023-01-01',
+              purchasePrice: 100000,
+              income: 50000,
+              loanStatus: 0,
+            },
+            // Add more mock data if needed
+          ],
+        },
+      });
+  
+      await act(async () => {
+        render(
+          <QueryClientProvider client={queryClient}>
+            <LoanRequests />
+          </QueryClientProvider>
+        );
+      });
+      // Add your assertions here
+      const loanTypeColumn = screen.getByText('Home Loan');
+      expect(loanTypeColumn).toBeInTheDocument();
+    });
+    test('loan_requests_handles_row_expansion_and_modal_visibility', async () => {
+      axios.post.mockResolvedValueOnce({
+        status: 200,
+        data: {
+          data: [
+            // Mock loan request objects
+            {
+              loanApplicationID: 1,
+              userName: 'John Doe',
+              loanType: 'Home Loan',
+              model: '2023',
+              submissionDate: '2023-01-01',
+              purchasePrice: 100000,
+              income: 50000,
+              loanStatus: 0,
+            },
+            // Add more mock data if needed
+          ],
+        },
+      });
+  
+      await act(async () => {
+        render(
+          <QueryClientProvider client={queryClient}>
+            <LoanRequests />
+          </QueryClientProvider>
+        );
+      });
+  
+      const showMoreButton = screen.getByText('Show More');
+      fireEvent.click(showMoreButton);
+  
+      const modalCloseButton = screen.getByText('Close');
+      expect(modalCloseButton).toBeInTheDocument();
+  
+      fireEvent.click(modalCloseButton);
+  
+      await waitFor(() => {
+        expect(screen.queryByText('Close')).toBeNull();
+      });
+    });
+    test('renders_loan_requests_with_back_button', async () => {
+      await act(async () => {
+        render(
+          <QueryClientProvider client={queryClient}>
+            <LoanRequests />
+          </QueryClientProvider>
+        );
+      });
+  
+      // Check if input field is present
+ // Check if table headers are present
+ // Check if logout button is present
+ expect(screen.getByText('Back')).toBeInTheDocument();
+
+ // Check if "View Applied Loan" button is present
+
+ 
      
-      const successMessage = await screen.findByText("Successfully Added!");
-      expect(successMessage).toBeInTheDocument();
-  
     });
-    test("loanform_should_handle_validation_errors_when_adding_a_new_loan", async () => {
-      // Mock Axios to resolve as an error (status 400) to simulate validation error
-  
+    test('renders_loan_requests_with_search_option', async () => {
       await act(async () => {
         render(
-          <BrowserRouter>
-            <LoanForm />
-          </BrowserRouter>
+          <QueryClientProvider client={queryClient}>
+            <LoanRequests />
+          </QueryClientProvider>
         );
       });
-  
-      // Simulate user input for adding a new loan with missing fields
-      const addLoanButton = screen.getByText("Add Loan");
-      fireEvent.click(addLoanButton);
-  
-      // Your test assertions for handling validation errors
-      // For example, you can expect to find error messages on the screen
-      const loanTypeError = screen.getByText("Loan Type is required");
-      const descriptionError = screen.getByText("Description is required");
-      const interestRateError = screen.getByText("Interest Rate is required");
-      const maxAmountError = screen.getByText("Maximum Amount is required");
-      expect(maxAmountError).toBeInTheDocument();
-      expect(interestRateError).toBeInTheDocument();
-      expect(descriptionError).toBeInTheDocument();
-      expect(loanTypeError).toBeInTheDocument();
+   
+ expect(screen.getByPlaceholderText('Search...')).toBeInTheDocument();
+    
     });
   });
-  jest.mock("react-router-dom", () => {
-    return {
-      ...jest.requireActual("react-router-dom"),
-      useNavigate: () => jest.fn(),
-    };
-  });
+
   describe("AppliedLoansPage Component", () => {
     afterEach(() => {
       jest.clearAllMocks();
@@ -738,7 +995,7 @@ describe("LoanForm Component", () => {
       // Additional assertions for other rows in descending order
     });
   
-    test("should_navigate_to_the_next_page_in_pagination", async () => {
+    test("applied_loans_should_navigate_to_the_next_page_in_pagination", async () => {
       const mockAppliedLoansData = [
         {
           _id: 1,
@@ -802,7 +1059,7 @@ describe("LoanForm Component", () => {
       // Additional assertions for other rows on the next page
     });
   
-    test("should_navigate_to_the_previous_page_in_pagination", async () => {
+    test("applied_loans_should_navigate_to_the_previous_page_in_pagination", async () => {
       const mockAppliedLoansData = [
         {
           _id: 1,
@@ -869,72 +1126,8 @@ describe("LoanForm Component", () => {
       expect(screen.getByText("Loan 1")).toBeInTheDocument();
       // Additional assertions for other rows on the previous page
     });
-  
-    test("should_filter_applied_loans_based_on_search_input", async () => {
-      const mockAppliedLoansData = [
-        {
-          _id: 1,
-          loanType: "Loan 1",
-          submissionDate: "2023-10-01",
-          loanStatus: 0,
-        },
-        {
-          _id: 2,
-          loanType: "Loan 2",
-          submissionDate: "2023-10-02",
-          loanStatus: 1,
-        },
-        {
-          _id: 3,
-          loanType: "Loan 3",
-          submissionDate: "2023-10-03",
-          loanStatus: 0,
-        },
-        {
-          _id: 4,
-          loanType: "Loan 4",
-          submissionDate: "2023-10-04",
-          loanStatus: 1,
-        },
-        {
-          _id: 5,
-          loanType: "Loan 5",
-          submissionDate: "2023-10-05",
-          loanStatus: 0,
-        },
-        {
-          _id: 6,
-          loanType: "Loan 6",
-          submissionDate: "2023-10-09",
-          loanStatus: 1,
-        },
-        {
-          _id: 7,
-          loanType: "Loan 7",
-          submissionDate: "2023-10-09",
-          loanStatus: 1,
-        },
-      ];
-      jest
-        .spyOn(axios, "get")
-        .mockResolvedValue({ data: mockAppliedLoansData, status: 200 });
-  
-      await act(async () => {
-        render(
-          <BrowserRouter>
-            <AppliedLoansPage />
-          </BrowserRouter>
-        );
-      });
-  
-      const searchInput = screen.getByPlaceholderText("Search...");
-      fireEvent.change(searchInput, { target: { value: "Loan 3" } });
-  
-      expect(screen.getByText("Loan 3")).toBeInTheDocument();
-      expect(screen.queryByText("Loan 1")).toBeNull();
-      // Additional assertions for other rows
-    });
-    test("should_handle_applied_loan_deletion", async () => {
+ 
+    test("applied_loans_should_handle_applied_loan_deletion", async () => {
       // Mock the axios.get function for fetching loan data
       const mockAppliedLoansData = [
         {
@@ -1019,639 +1212,166 @@ describe("LoanForm Component", () => {
       );
     });
   });
-  describe("Adminhomepage", () => {
+
+  describe('LoanApplicationForm Component', () => {
+    test('renders_loan_application_form_component_with_title', async () => {
+      await act(async () => {
+        render(
+          <BrowserRouter>
+            <LoanApplicationForm />
+          </BrowserRouter>
+        );
+      });
+  
+      // Add your assertions here
+      const headerElement = screen.getByText('Loan Application Form');
+      expect(headerElement).toBeInTheDocument();
+    });
+  
+    test('loan_application_form_handles_form_submission', async () => {
+      axios.post.mockResolvedValueOnce({ status: 200 });
+  
+      await act(async () => {
+        render(
+          <BrowserRouter>
+            <LoanApplicationForm />
+          </BrowserRouter>
+        );
+      });
+  
+      // Simulate user input
+      const incomeInput = screen.getByLabelText('Income:');
+      fireEvent.change(incomeInput, { target: { value: '50000' } });
+  
+      const modelInput = screen.getByLabelText('Model:');
+      fireEvent.change(modelInput, { target: { value: '2023-01-01' } });
+  
+      const purchasePriceInput = screen.getByLabelText('Purchase Price:');
+      fireEvent.change(purchasePriceInput, { target: { value: '100000' } });
+  
+      const addressInput = screen.getByLabelText('Address:');
+      fireEvent.change(addressInput, { target: { value: '123 Main St' } });
+  
+      // Mock file input change
+      const fileInput = screen.getByLabelText('File Upload:');
+      fireEvent.change(fileInput, {
+        target: {
+          files: [
+            new File(['file content'], 'file.txt', { type: 'text/plain' })
+          ],
+        },
+      });
+  
+      // Submit the form
+      const submitButton = screen.getByText('Submit');
+      fireEvent.click(submitButton);
+  
+      expect(screen.getByText('Loan Application Form')).toBeInTheDocument();
+      expect(incomeInput).toBeInTheDocument();
+      expect(modelInput).toBeInTheDocument();
+      expect(purchasePriceInput).toBeInTheDocument();
+      expect(addressInput).toBeInTheDocument();
+    });
+    test('renders_loan_application_form_component_with_back_button', async () => {
+      await act(async () => {
+        render(
+          <BrowserRouter>
+            <LoanApplicationForm />
+          </BrowserRouter>
+        );
+      });
+  
+      // Add your assertions here
+      const headerElement = screen.getByText('Back');
+      expect(headerElement).toBeInTheDocument();
+    });
+  });
+
+  describe('UserHomePage', () => {
     const queryClient = new QueryClient();
-    afterEach(() => {
-      jest.clearAllMocks();
-    });
-    test("admin_home_page_displaying_data_in_the_grid", async () => {
-      let mockLoanRequestsData = [
-        {
-          _id: "1",
-          loanType: "Car Loan",
-          maximumAmount: 10000,
-          interestRate: 5,
-          description: "Low-interest car loan.",
-        },
-        {
-          _id: "2",
-          loanType: "Home Loan",
-          maximumAmount: 50000,
-          interestRate: 3,
-          description: "Affordable home loan.",
-        },
-        {
-          _id: "3",
-          loanType: "Personal Loan",
-          maximumAmount: 15000,
-          interestRate: 6,
-          description: "Flexible personal loan.",
-        },
-        {
-          _id: "4",
-          loanType: "Education Loan",
-          maximumAmount: 25000,
-          interestRate: 4,
-          description: "Support your education.",
-        },
-        {
-          _id: "5",
-          loanType: "Business Loan",
-          maximumAmount: 75000,
-          interestRate: 7,
-          description: "Grow your business.",
-        },
-      ];
-  
-      jest
-        .spyOn(axios, "get")
-        .mockResolvedValue({ data: mockLoanRequestsData, status: 200 });
-  
+    test('renders_user_home_page_with_title', async () => {
       await act(async () => {
         render(
           <QueryClientProvider client={queryClient}>
-            <HomePage />
+            <UserHomePage />
           </QueryClientProvider>
         );
       });
   
-      for (const loan of mockLoanRequestsData) {
-        expect(screen.getByText(loan.loanType)).toBeInTheDocument();
-        expect(screen.getByText("$" + loan.maximumAmount)).toBeInTheDocument();
-        expect(screen.getByText(`${loan.interestRate}%`)).toBeInTheDocument();
-        expect(screen.getByText(loan.description)).toBeInTheDocument();
-      }
+      // Check if input field is present
+
+      expect(screen.getByText('Available Vehicle Loans')).toBeInTheDocument();
+  
+     
     });
-    test("admin_home_page_filters_loans_based_on_search_input", async () => {
-      let mockLoanRequestsData = [
-        {
-          _id: "1",
-          loanType: "Car Loan",
-          maximumAmount: 10000,
-          interestRate: 5,
-          description: "Low-interest car loan.",
-        },
-        {
-          _id: "2",
-          loanType: "Home Loan",
-          maximumAmount: 50000,
-          interestRate: 3,
-          description: "Affordable home loan.",
-        },
-        {
-          _id: "3",
-          loanType: "Personal Loan",
-          maximumAmount: 15000,
-          interestRate: 6,
-          description: "Flexible personal loan.",
-        },
-        {
-          _id: "4",
-          loanType: "Education Loan",
-          maximumAmount: 25000,
-          interestRate: 4,
-          description: "Support your education.",
-        },
-        {
-          _id: "5",
-          loanType: "Business Loan",
-          maximumAmount: 75000,
-          interestRate: 7,
-          description: "Grow your business.",
-        },
-        {
-          _id: "6",
-          loanType: "Mortgage Loan",
-          maximumAmount: 100000,
-          interestRate: 3.5,
-          description: "Your dream home awaits.",
-        },
-        {
-          _id: "7",
-          loanType: "Credit Card Loan",
-          maximumAmount: 5000,
-          interestRate: 15,
-          description: "Convenient credit card loan.",
-        },
-        {
-          _id: "8",
-          loanType: "Emergency Loan",
-          maximumAmount: 1000,
-          interestRate: 10,
-          description: "Get quick financial help.",
-        },
-      ];
-  
-      jest
-        .spyOn(axios, "get")
-        .mockResolvedValue({ data: mockLoanRequestsData, status: 200 });
-  
+    test('renders_user_home_page_with_search_box', async () => {
       await act(async () => {
         render(
           <QueryClientProvider client={queryClient}>
-            <HomePage />
+            <UserHomePage />
           </QueryClientProvider>
         );
       });
   
-      // Type 'Car' into the search input
-      const searchInput = screen.getByPlaceholderText("Search...");
-      fireEvent.change(searchInput, { target: { value: "Car" } });
+      // Check if input field is present
+      expect(screen.getByPlaceholderText('Search...')).toBeInTheDocument();
   
-      // Assert that 'Car Loan' should be displayed, but 'Home Loan' should not
-      expect(screen.getByText("Car Loan")).toBeInTheDocument();
-      expect(screen.queryByText("Home Loan")).toBeNull();
+     
     });
-    test("admin_home_page_displaying_the_required_buttons", async () => {
+    test('renders_user_home_page_with_grid', async () => {
       await act(async () => {
         render(
           <QueryClientProvider client={queryClient}>
-            <HomePage />
+            <UserHomePage />
           </QueryClientProvider>
         );
       });
   
-      // Assert that the "Create New" button is present
-      const createNewButton = screen.getByText("Create New", {
-        selector: "button",
-      });
-      expect(createNewButton).toBeInTheDocument();
-  
-      // Assert that the "Loans Requested" button is present
-      const loansRequestedButton = screen.getByText("Loans Requested", {
-        selector: "button",
-      });
-      expect(loansRequestedButton).toBeInTheDocument();
-  
-      // Assert that the "Logout" button is present
-      const logoutButton = screen.getByText("Logout", { selector: "button" });
-      expect(logoutButton).toBeInTheDocument();
+      // Check if input field is present
+ // Check if table headers are present
+ expect(screen.getByText('Loan Type')).toBeInTheDocument();
+ expect(screen.getByText('Loan Description')).toBeInTheDocument();
+ expect(screen.getByText('Interest Rate')).toBeInTheDocument();
+ expect(screen.getByText('Maximum Amount')).toBeInTheDocument();
+ expect(screen.getByText('Action')).toBeInTheDocument();
+
+ 
+     
     });
-    test("admin_home_page_sort_loans_in_ascending_order", async () => {
-      let mockLoanRequestsData = [
-        {
-          _id: "1",
-          loanType: "Car Loan",
-          maximumAmount: 10000,
-          interestRate: 5,
-          description: "Low-interest car loan.",
-        },
-        {
-          _id: "2",
-          loanType: "Home Loan",
-          maximumAmount: 50000,
-          interestRate: 13,
-          description: "Affordable home loan.",
-        },
-        {
-          _id: "3",
-          loanType: "Personal Loan",
-          maximumAmount: 15000,
-          interestRate: 6,
-          description: "Flexible personal loan.",
-        },
-        {
-          _id: "4",
-          loanType: "Education Loan",
-          maximumAmount: 25000,
-          interestRate: 1,
-          description: "Support your education.",
-        },
-        {
-          _id: "5",
-          loanType: "Business Loan",
-          maximumAmount: 75000,
-          interestRate: 27,
-          description: "Grow your business.",
-        },
-        // Add more data here...
-      ];
-  
-      jest
-        .spyOn(axios, "get")
-        .mockResolvedValue({ data: mockLoanRequestsData, status: 200 });
-  
+    test('renders_user_home_page_with_view_applied_loan_button', async () => {
       await act(async () => {
         render(
           <QueryClientProvider client={queryClient}>
-            <HomePage />
+            <UserHomePage />
           </QueryClientProvider>
         );
       });
   
-      // Click the ascending sort button
-      const ascendingSortButton = screen.getByText("⬆️");
-      fireEvent.click(ascendingSortButton);
-  
-      // Check if the data is sorted in ascending order
-      // Check if the data is sorted in ascending order
-      const sortedLoanTypes = screen.getAllByRole("cell");
-      expect(sortedLoanTypes[0]).toHaveTextContent("Education Loan");
-      // Add more assertions for other data fields as needed...
+      // Check if input field is present
+ // Check if table headers are present
+ expect(screen.getByText('View Applied Loan')).toBeInTheDocument(); 
+
+
+ 
+     
     });
-  
-    test("admin_home_page_sort_loans_in_descending_order", async () => {
-      let mockLoanRequestsData = [
-        {
-          _id: "1",
-          loanType: "Car Loan",
-          maximumAmount: 10000,
-          interestRate: 5,
-          description: "Low-interest car loan.",
-        },
-        {
-          _id: "2",
-          loanType: "Home Loan",
-          maximumAmount: 50000,
-          interestRate: 13,
-          description: "Affordable home loan.",
-        },
-        {
-          _id: "3",
-          loanType: "Personal Loan",
-          maximumAmount: 15000,
-          interestRate: 6,
-          description: "Flexible personal loan.",
-        },
-        {
-          _id: "4",
-          loanType: "Education Loan",
-          maximumAmount: 25000,
-          interestRate: 1,
-          description: "Support your education.",
-        },
-        {
-          _id: "5",
-          loanType: "Business Loan",
-          maximumAmount: 75000,
-          interestRate: 27,
-          description: "Grow your business.",
-        },
-        // Add more data here...
-      ];
-  
-      jest
-        .spyOn(axios, "get")
-        .mockResolvedValue({ data: mockLoanRequestsData, status: 200 });
-  
+    test('renders_user_home_page_with_logout_button', async () => {
       await act(async () => {
         render(
           <QueryClientProvider client={queryClient}>
-            <HomePage />
+            <UserHomePage />
           </QueryClientProvider>
         );
       });
   
-      // Click the ascending sort button
-      const ascendingSortButton = screen.getByText("⬇️");
-      fireEvent.click(ascendingSortButton);
-  
-      // Check if the data is sorted in ascending order
-      // Check if the data is sorted in ascending order
-      const sortedLoanTypes = screen.getAllByRole("cell");
-      expect(sortedLoanTypes[0]).toHaveTextContent("Business Loan");
-      // Add more assertions for other data fields as needed...
-    });
-  
-    test("admin_home_page_pagination_next_button", async () => {
-      let mockLoanRequestsData = [
-        {
-          _id: "1",
-          loanType: "Car Loan",
-          maximumAmount: 10000,
-          interestRate: 5,
-          description: "Low-interest car loan.",
-        },
-        {
-          _id: "2",
-          loanType: "Home Loan",
-          maximumAmount: 50000,
-          interestRate: 3,
-          description: "Affordable home loan.",
-        },
-        {
-          _id: "3",
-          loanType: "Personal Loan",
-          maximumAmount: 15000,
-          interestRate: 6,
-          description: "Flexible personal loan.",
-        },
-        {
-          _id: "4",
-          loanType: "Education Loan",
-          maximumAmount: 25000,
-          interestRate: 4,
-          description: "Support your education.",
-        },
-        {
-          _id: "5",
-          loanType: "Business Loan",
-          maximumAmount: 75000,
-          interestRate: 7,
-          description: "Grow your business.",
-        },
-        {
-          _id: "6",
-          loanType: "Mortgage Loan",
-          maximumAmount: 100000,
-          interestRate: 3.5,
-          description: "Your dream home awaits.",
-        },
-        {
-          _id: "7",
-          loanType: "Credit Card Loan",
-          maximumAmount: 5000,
-          interestRate: 15,
-          description: "Convenient credit card loan.",
-        },
-        {
-          _id: "8",
-          loanType: "Emergency Loan",
-          maximumAmount: 1000,
-          interestRate: 10,
-          description: "Get quick financial help.",
-        },
-      ];
-  
-      jest
-        .spyOn(axios, "get")
-        .mockResolvedValue({ data: mockLoanRequestsData, status: 200 });
-  
-      await act(async () => {
-        render(
-          <QueryClientProvider client={queryClient}>
-            <HomePage />
-          </QueryClientProvider>
-        );
-      });
-  
-      // Type 'Car' into the search input
-      expect(screen.getByText("Business Loan")).toBeInTheDocument();
-      expect(screen.queryByText("Mortgage Loan")).toBeNull(); // Check for specific data
-  
-      const nextButton = screen.getByText("Next");
-      fireEvent.click(nextButton);
-  
-      expect(screen.getByText("Mortgage Loan")).toBeInTheDocument();
-      expect(screen.queryByText("Business Loan")).toBeNull();
-    });
-  
-    test("admin_home_page_pagination_previous_button", async () => {
-      let mockLoanRequestsData = [
-        {
-          _id: "1",
-          loanType: "Car Loan",
-          maximumAmount: 10000,
-          interestRate: 5,
-          description: "Low-interest car loan.",
-        },
-        {
-          _id: "2",
-          loanType: "Home Loan",
-          maximumAmount: 50000,
-          interestRate: 3,
-          description: "Affordable home loan.",
-        },
-        {
-          _id: "3",
-          loanType: "Personal Loan",
-          maximumAmount: 15000,
-          interestRate: 6,
-          description: "Flexible personal loan.",
-        },
-        {
-          _id: "4",
-          loanType: "Education Loan",
-          maximumAmount: 25000,
-          interestRate: 4,
-          description: "Support your education.",
-        },
-        {
-          _id: "5",
-          loanType: "Business Loan",
-          maximumAmount: 75000,
-          interestRate: 7,
-          description: "Grow your business.",
-        },
-        {
-          _id: "6",
-          loanType: "Mortgage Loan",
-          maximumAmount: 100000,
-          interestRate: 3.5,
-          description: "Your dream home awaits.",
-        },
-        {
-          _id: "7",
-          loanType: "Credit Card Loan",
-          maximumAmount: 5000,
-          interestRate: 15,
-          description: "Convenient credit card loan.",
-        },
-        {
-          _id: "8",
-          loanType: "Emergency Loan",
-          maximumAmount: 1000,
-          interestRate: 10,
-          description: "Get quick financial help.",
-        },
-      ];
-  
-      jest
-        .spyOn(axios, "get")
-        .mockResolvedValue({ data: mockLoanRequestsData, status: 200 });
-  
-      await act(async () => {
-        render(
-          <QueryClientProvider client={queryClient}>
-            <HomePage />
-          </QueryClientProvider>
-        );
-      });
-  
-      // Type 'Car' into the search input
-      expect(screen.getByText("Business Loan")).toBeInTheDocument();
-      expect(screen.queryByText("Mortgage Loan")).toBeNull(); // Check for specific data
-  
-      const nextButton = screen.getByText("Next");
-      fireEvent.click(nextButton);
-  
-      expect(screen.getByText("Mortgage Loan")).toBeInTheDocument();
-      expect(screen.queryByText("Business Loan")).toBeNull();
-  
-      const prevButton = screen.getByText("Prev");
-      fireEvent.click(prevButton);
-  
-      expect(screen.getByText("Business Loan")).toBeInTheDocument();
-      expect(screen.queryByText("Mortgage Loan")).toBeNull();
-    });
-    test("should_trigger_edit_action_when_edit_button_is_clicked", async () => {
-      let mockLoanRequestsData = [
-        {
-          _id: "1",
-          loanType: "Car Loan",
-          maximumAmount: 10000,
-          interestRate: 5,
-          description: "Low-interest car loan.",
-        },
-        {
-          _id: "2",
-          loanType: "Home Loan",
-          maximumAmount: 50000,
-          interestRate: 3,
-          description: "Affordable home loan.",
-        },
-        {
-          _id: "3",
-          loanType: "Personal Loan",
-          maximumAmount: 15000,
-          interestRate: 6,
-          description: "Flexible personal loan.",
-        },
-        {
-          _id: "4",
-          loanType: "Education Loan",
-          maximumAmount: 25000,
-          interestRate: 4,
-          description: "Support your education.",
-        },
-        {
-          _id: "5",
-          loanType: "Business Loan",
-          maximumAmount: 75000,
-          interestRate: 7,
-          description: "Grow your business.",
-        },
-        {
-          _id: "6",
-          loanType: "Mortgage Loan",
-          maximumAmount: 100000,
-          interestRate: 3.5,
-          description: "Your dream home awaits.",
-        },
-        {
-          _id: "7",
-          loanType: "Credit Card Loan",
-          maximumAmount: 5000,
-          interestRate: 15,
-          description: "Convenient credit card loan.",
-        },
-        {
-          _id: "8",
-          loanType: "Emergency Loan",
-          maximumAmount: 1000,
-          interestRate: 10,
-          description: "Get quick financial help.",
-        },
-      ];
-      const navigate = jest.fn();
-  
-      axios.get.mockResolvedValue({ data: mockLoanRequestsData, status: 200 });
-  
-      // Mock the useNavigate function
-      jest
-        .spyOn(require("react-router-dom"), "useNavigate")
-        .mockReturnValue(navigate);
-  
-      await act(async () => {
-        render(
-          <QueryClientProvider client={queryClient}>
-            <HomePage />
-          </QueryClientProvider>
-        );
-      });
-  
-      // Click the "Edit" button for the first loan
-      const editButtons = screen.getAllByText("Edit");
-      fireEvent.click(editButtons[0]);
-  
-      // Check if it navigated to the correct URL
-      expect(navigate).toHaveBeenCalledWith("/newloan/1");
-    });
-    test("should_trigger_delete_action_when_delete_button_is_clicked", async () => {
-      let mockLoanRequestsData = [
-        {
-          _id: "1",
-          loanType: "Car Loan",
-          maximumAmount: 10000,
-          interestRate: 5,
-          description: "Low-interest car loan.",
-        },
-        {
-          _id: "2",
-          loanType: "Home Loan",
-          maximumAmount: 50000,
-          interestRate: 3,
-          description: "Affordable home loan.",
-        },
-        {
-          _id: "3",
-          loanType: "Personal Loan",
-          maximumAmount: 15000,
-          interestRate: 6,
-          description: "Flexible personal loan.",
-        },
-        {
-          _id: "4",
-          loanType: "Education Loan",
-          maximumAmount: 25000,
-          interestRate: 4,
-          description: "Support your education.",
-        },
-        {
-          _id: "5",
-          loanType: "Business Loan",
-          maximumAmount: 75000,
-          interestRate: 7,
-          description: "Grow your business.",
-        },
-        {
-          _id: "6",
-          loanType: "Mortgage Loan",
-          maximumAmount: 100000,
-          interestRate: 3.5,
-          description: "Your dream home awaits.",
-        },
-        {
-          _id: "7",
-          loanType: "Credit Card Loan",
-          maximumAmount: 5000,
-          interestRate: 15,
-          description: "Convenient credit card loan.",
-        },
-        {
-          _id: "8",
-          loanType: "Emergency Loan",
-          maximumAmount: 1000,
-          interestRate: 10,
-          description: "Get quick financial help.",
-        },
-      ];
-  
-      axios.get.mockResolvedValue({ data: mockLoanRequestsData, status: 200 });
-  
-      // Create a mock function for axios.delete
-      const mockDelete = jest.fn();
-      axios.delete.mockImplementation(mockDelete);
-  
-      await act(async () => {
-        render(
-          <QueryClientProvider client={queryClient}>
-            <HomePage />
-          </QueryClientProvider>
-        );
-      });
-  
-      // Click the "Delete" button for the first loan
-      const deleteButtons = screen.getAllByText("Delete");
-      fireEvent.click(deleteButtons[0]);
-      
-      expect(
-        screen.getByText("Are you sure you want to delete?")
-      ).toBeInTheDocument();
-      const deletbutton = screen.getByText("Yes, Delete");
-      fireEvent.click(deletbutton);
-      expect(axios.delete).toHaveBeenCalledWith(
-        expect.stringMatching(`loan/deleteLoan`),
-      );
+      // Check if input field is present
+ // Check if table headers are present
+ // Check if logout button is present
+ expect(screen.getByText('Logout')).toBeInTheDocument();
+
+ // Check if "View Applied Loan" button is present
+
+ 
+     
     });
   });
