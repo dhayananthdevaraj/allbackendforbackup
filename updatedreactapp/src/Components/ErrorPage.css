@@ -1,0 +1,15 @@
+/* ErrorPage.css */
+
+.container {
+    text-align: center;
+    padding: 50px;
+  }
+  
+  .heading {
+    color: #721c24; /* Dark red text color */
+  }
+  
+  .image {
+    margin-top: 20px;
+  }
+  

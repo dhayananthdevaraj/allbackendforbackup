@@ -73,3 +73,12 @@ th, td {
     font-size: 18px; /* Set the font size */
     font-weight: bold; /* Make the text bold */
   }
+#searchBox1{
+    display: block;
+    width: 300px;
+    float:right
+}
+
+#redButton{
+    background-color:red ;
+}

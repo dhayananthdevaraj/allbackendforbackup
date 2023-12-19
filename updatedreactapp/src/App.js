@@ -11,6 +11,7 @@ import { Navigate } from 'react-router-dom';
 import UserHomePage from './UserComponents/UserHomePage';
 import AppliedLoans from './UserComponents/AppliedLoans';
 import LoanApplicationForm from './UserComponents/LoanApplicationForm';
+import ErrorPage from './Components/ErrorPage';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path="/availableloan"  element={  <PrivateRoute>  <UserHomePage /> </PrivateRoute>}/>   
         <Route path="/appliedloan"  element={  <PrivateRoute>  <AppliedLoans /> </PrivateRoute>}/>   
         <Route path="/loanApplicationForm"  element={  <PrivateRoute>  <LoanApplicationForm /> </PrivateRoute>}/>   
+        <Route path="/error"  element={<ErrorPage/> }/>  
 
      </Routes>
     </BrowserRouter>

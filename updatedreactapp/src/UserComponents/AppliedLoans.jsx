@@ -23,7 +23,7 @@ const AppliedLoansPage = () => {
 
     async function fetchData() {
         try {
-            const response = await axios.get("https://8080-abfdabeabcbaedbbdbffcedacbfdaeffdedfbedfefba.premiumproject.examly.io/loanApplication/getLoanApplicationByUserId/" + userId,{
+            const response = await axios.get("https://8080-abfdabeabcbaedbbdbffcedacbfdaeffdedfbedfefba.premiumproject.examly.io/loanApplication/getLoanApplicationsByUserId/" + userId,{
                 headers: {
                   Authorization:localStorage.getItem("token"), // Add the token to the Authorization header
                 },
@@ -34,7 +34,8 @@ const AppliedLoansPage = () => {
                 setMaxRecords(response.data.length);
             }
         } catch (error) {
-            setAppliedLoans([]);
+            navigate("/error")
+
         }
     }
 
@@ -112,14 +113,12 @@ const AppliedLoansPage = () => {
             <h1>Applied Loans</h1>
 
             {/* Search Box */}
-            <div>
-                <input id='searchBox'
+                <input id='searchBox1'
                     type="text"
                     placeholder="Search..."
                     value={searchValue}
                     onChange={handleSearchChange}
                 />
-            </div>
 
             <table>
                 <thead>
@@ -166,7 +165,7 @@ const AppliedLoansPage = () => {
                                             : 'Rejected'}
                                     </td>
                                     <td>
-                                        <button
+                                        <button id='redButton'
                                             onClick={() => {
                                                 handleDeleteClick(loan._id);
                                             }}

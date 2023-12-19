@@ -41,6 +41,7 @@ const[successPopup,setSuccessPopup]=useState(false);
 
   async function fun(id)
   {
+   try{
     const response = await axios.get(`https://8080-abfdabeabcbaedbbdbffcedacbfdaeffdedfbedfefba.premiumproject.examly.io/loan/getLoanById/${id}`,
     {
       headers: {
@@ -50,12 +51,23 @@ const[successPopup,setSuccessPopup]=useState(false);
       console.log("response.data in edit",response.data);
     
     
-    setFormData({
-      loanType:response.data.loanType,
-      description: response.data.description,
-      interestRate:response.data.interestRate,
-      maxAmount: response.data.maximumAmount,
-    })
+ if(response.status==200)
+ {
+  setFormData({
+    loanType:response.data.loanType,
+    description: response.data.description,
+    interestRate:response.data.interestRate,
+    maxAmount: response.data.maximumAmount,
+  })
+ }
+
+   }
+catch(error)
+{
+  navigate("/error")
+
+}
+
   }
 
 
@@ -125,6 +137,10 @@ const[successPopup,setSuccessPopup]=useState(false);
     if (response.status == 200) {
       setSuccessPopup(true);
     }
+    else{
+      navigate("/error")
+
+    }
 
     }
     setFormData({
@@ -134,7 +150,8 @@ const[successPopup,setSuccessPopup]=useState(false);
       maxAmount: '',
     });
    }catch{
-    
+    navigate("/error")
+
    }
     }
   }

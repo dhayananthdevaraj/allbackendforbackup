@@ -36,12 +36,10 @@ function LoanApplicationForm() {
     try {
       console.log("requestObject", requestObject);
       const response = await axios.post(
-        "https://8080-abfheadersdabeabcbaedbbdbffcedacbfdaeffdedfbedfefba.premiumproject.examly.io/loanApplication/addLoanApplication",
+        "https://8080-abfdabeabcbaedbbdbffcedacbfdaeffdedfbedfefba.premiumproject.examly.io/loanApplication/addLoanApplication",
         requestObject,
         {
-          "": {
-            Authorization:localStorage.getItem("token"), // Add the token to the Authorization header
-          },
+            "Authorization":localStorage.getItem("token"), 
         }
       );
       console.log("response in application", response);
@@ -51,6 +49,8 @@ function LoanApplicationForm() {
       // Handle success
     } catch (error) {
       alert("Something Went wrong");
+      navigate("/error")
+
     }
   };
 
@@ -63,6 +63,8 @@ function LoanApplicationForm() {
         setFilePreview(base64String);
       } catch (error) {
         console.error("Error converting file to base64:", error);
+        navigate("/error")
+
       }
     }
   };

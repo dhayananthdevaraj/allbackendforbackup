@@ -84,7 +84,6 @@ function Signup() {
       console.log('requestObject', requestObject);
 
       try {
-        let jwtToken=localStorage.getItem("token")
         const response = await axios.post(
           'https://8080-abfdabeabcbaedbbdbffcedacbfdaeffdedfbedfefba.premiumproject.examly.io/user/signup',
           requestObject,

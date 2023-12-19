@@ -34,7 +34,7 @@ const getAllLoanApplications = async (req, res) => {
       .skip((page - 1) * pageSize) 
       .limit(pageSize) 
       .exec();
-
+     console.log("loanApplications",loanApplications);
     const loanApplications1 = await LoanApplication.find(searchQuery);
     res.status(200).json({ data: loanApplications, length: loanApplications1.length });
   } catch (error) {
@@ -42,16 +42,12 @@ const getAllLoanApplications = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-const getLoanApplicationByUserId = async (req, res) => {
+const getLoanApplicationsByUserId = async (req, res) => {
     try {
       const { userId } = req.params; // Assuming userId is provided as a parameter
-  console.log("userId",userId)
       const loanApplication = await LoanApplication.find({ userId }); // Find by userId
-      if (loanApplication) {
-        res.status(200).json(loanApplication);
-      } else {
-        res.status(404).json({ message: 'Loan application not found for the provided userId' });
-      }
+      res.status(200).json(loanApplication);
+   
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
@@ -69,7 +65,7 @@ const getLoanApplicationById = async (req, res) => {
 
 const addLoanApplication = async (req, res) => {
   try {
-    console.log("req.body",req.body);
+    console.log("in addLoanApplication",req.body);
    await LoanApplication.create(req.body);
     res.status(200).json({"message":"Added Successfully"});
   } catch (error) {
@@ -84,7 +80,7 @@ const updateLoanApplication = async (req, res) => {
     if (!loanApplication) {
       return res.status(404).json({ message: `Cannot find any loan application` });
     }
-    const updatedLoanApplication = await LoanApplication.findById(id);
+     await LoanApplication.findById(id);
     res.status(200).json({"message":"Updated Successfully"});
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -110,5 +106,5 @@ module.exports = {
   addLoanApplication,
   updateLoanApplication,
   deleteLoanApplication,
-  getLoanApplicationByUserId
+  getLoanApplicationsByUserId
 };

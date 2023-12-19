@@ -132,7 +132,9 @@ input {
 }
 #logoutbutton{
   float:right;
-  margin:20px
+  margin:20px;
+  background-color: red;
+  
 }
 
 #req_button{

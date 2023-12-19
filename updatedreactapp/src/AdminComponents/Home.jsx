@@ -74,10 +74,15 @@ const HomePage = () => {
           refetch();
           // You may want to remove the deleted loan from availableLoans here.
         }
+        else{
+          navigate("/error")
+
+        }
         closeDeletePopup();
       }
     } catch (error) {
-      console.error("Error deleting loan:", error);
+      navigate("/error")
+
     }
   };
 
@@ -88,15 +93,35 @@ const HomePage = () => {
 
   // Define the fetchAvailableLoans function
   const fetchAvailableLoans = async () => {
-    const res = await axios.get(
-      "https://8080-abfdabeabcbaedbbdbffcedacbfdaeffdedfbedfefba.premiumproject.examly.io/loan/getAllLoans"
-   ,{
-    headers: {
-      Authorization:localStorage.getItem("token"), // Add the token to the Authorization header
-    },
-  } );
-    console.log("hey",res)
+
+
+try{
+  const res = await axios.get(
+    "https://8080-abfdabeabcbaedbbdbffcedacbfdaeffdedfbedfefba.premiumproject.examly.io/loan/getAllLoans"
+ ,{
+  headers: {
+    Authorization:localStorage.getItem("token"), // Add the token to the Authorization header
+  },
+} );
+  console.log("hey",res)
+  if(res.status==200)
+  {
     return res.data;
+
+  }
+  else{
+    navigate("/error")
+  }
+
+}
+catch(error)
+{
+  navigate("/error")
+
+}
+
+
+
   };
 
   // Use useQuery to fetch available loans

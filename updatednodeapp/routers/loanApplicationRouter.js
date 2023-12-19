@@ -3,11 +3,11 @@ const loanApplicationController = require("../controllers/loanApplicationControl
 const { validateToken } = require("../authUtils");
 const router = express.Router();
 
-router.post("/getAllLoanApplications", validateToken,loanApplicationController.getAllLoanApplications);
-router.get("/getLoanApplicationById/:id",validateToken, loanApplicationController.getLoanApplicationById);
-router.get("/getLoanApplicationByUserId/:userId",validateToken, loanApplicationController.getLoanApplicationByUserId);
-router.post("/addLoanApplication", validateToken,loanApplicationController.addLoanApplication);
-router.put("/updateLoanApplication/:id",validateToken, loanApplicationController.updateLoanApplication);
+router.post("/getAllLoanApplications",loanApplicationController.getAllLoanApplications);
+router.get("/getLoanApplicationById/:id" , loanApplicationController.getLoanApplicationById);
+router.get("/getLoanApplicationsByUserId/:userId" , loanApplicationController.getLoanApplicationsByUserId);
+router.post("/addLoanApplication",loanApplicationController.addLoanApplication);
+router.put("/updateLoanApplication/:id" , loanApplicationController.updateLoanApplication);
 router.delete("/deleteLoanApplication/:id", validateToken,loanApplicationController.deleteLoanApplication);
 
 module.exports = router;

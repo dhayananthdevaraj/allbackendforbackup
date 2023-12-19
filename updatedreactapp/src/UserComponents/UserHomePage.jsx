@@ -25,7 +25,7 @@ const UserHomePage = () => {
   async function fetchAppliedLoans() {
   try{
     const response = await axios.get(
-      "https://8080-abfdabeabcbaedbbdbffcedacbfdaeffdedfbedfefba.premiumproject.examly.io/loanApplication/getLoanApplicationByUserId/" +
+      "https://8080-abfdabeabcbaedbbdbffcedacbfdaeffdedfbedfefba.premiumproject.examly.io/loanApplication/getLoanApplicationsByUserId/" +
         userId,{
           "headers": {
             Authorization:localStorage.getItem("token"), // Add the token to the Authorization header
@@ -41,7 +41,9 @@ const UserHomePage = () => {
 
   }catch(error)
   {
-     
+    console.log("error is",error);
+    navigate("/error")
+
   }
   }
 
@@ -60,7 +62,10 @@ const UserHomePage = () => {
       setFilteredLoans(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
+      navigate("/error")
+
     }
+
   }
 
   const totalPages = Math.ceil(filteredLoans.length / limit);
@@ -192,7 +197,7 @@ const UserHomePage = () => {
                       ) ? (
                         "Applied Successfully"
                       ) : (
-                        <button onClick={() => handleApplyClick(loan)}>
+                        <button id="greenButton" onClick={() => handleApplyClick(loan)}>
                           Apply
                         </button>
                       )}

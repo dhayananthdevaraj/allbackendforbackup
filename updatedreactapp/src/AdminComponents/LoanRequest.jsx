@@ -22,13 +22,15 @@ const LoanRequests = () => {
 
     async function fetchData() {
         try {
-            const response = await axios.post('https://8080-abfdabeabcbaedbbdbffcedacbfdaeffdedfbedfefba.premiumproject.examly.io/loanApplication/getAllLoanApplications', {
+            let reqObj={
                 searchValue: searchValue,
                 statusFilter: statusFilter,
                 page: page,
                 sortValue: sortValue,
                 pageSize: pagesize
-            },{
+            }
+            console.log("reqObj",reqObj);
+            const response = await axios.post('https://8080-abfdabeabcbaedbbdbffcedacbfdaeffdedfbedfefba.premiumproject.examly.io/loanApplication/getAllLoanApplications', reqObj,{
                 headers: {
                   Authorization:localStorage.getItem("token"), // Add the token to the Authorization header
                 },
@@ -37,7 +39,8 @@ const LoanRequests = () => {
             setLoanRequests(response.data.data);
             setMaxPageLength(Math.ceil(response.data.length / pagesize));
         } catch (error) {
-            console.error("Error fetching data:", error);
+            navigate("/error")
+
         }
     }
 
@@ -80,7 +83,7 @@ const LoanRequests = () => {
                 fetchData();
             }
         } catch (error) {
-            console.error("Error approving request:", error);
+            navigate("/error")
         }
     };
 
@@ -108,8 +111,12 @@ const LoanRequests = () => {
             if (response.status === 200) {
                 fetchData();
             }
+            else{
+                navigate("/error")
+
+            }
         } catch (error) {
-            console.error("Error rejecting request:", error);
+            navigate("/error")
         }
     };
 
@@ -124,14 +131,14 @@ const LoanRequests = () => {
         return (
             <div className="modal-overlay">
                 <div className="modal-content">
-                    <button onClick={onClose} className="modal-close-button">
+                    <button id='redButton'  onClick={onClose} >
                         Close
                     </button>
                     <div className="address-details">
                         <div>
-                            Address: {loan.address}</div>
+                          <b>Address:</b>   {loan.address}</div>
 
-                        <div>    <div>Proof:</div>                      <img src={loan.file} alt="Loan Image" style={{ height: '300px', width: '300px' }} />
+                        <div>    <div>  <b>Proof:</b></div>                      <img src={loan.file} alt="Loan Image" style={{ height: '300px', width: '300px' }} />
                         </div>                    </div>
                 </div>
             </div>

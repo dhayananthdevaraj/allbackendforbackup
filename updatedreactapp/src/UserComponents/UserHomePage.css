@@ -38,3 +38,12 @@ margin: 10px;
   td,tr{
     padding: 10px !important;
   }
+
+
+  #greenButton{
+  background-color: #27c475
+  }
+
+  #logoutButton{
+    background-color: #e6332d;
+  }

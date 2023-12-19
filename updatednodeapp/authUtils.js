@@ -10,7 +10,6 @@ const generateToken = (userId) => {
 
 const validateToken = (req, res, next) => {
   try {
-    console.log("came in auth",req);
     const token = req.header('Authorization');
 
     const decoded = jwt.verify(token, 'asdfghjkl');
