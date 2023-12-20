@@ -5,6 +5,7 @@ const Loan = require('../models/loanModel');
 const loanController = require('../controllers/loanController');
 const LoanApplication = require('../models/loanApplicationModel');
 const loanApplicationController = require('../controllers/loanApplicationController');
+const { validateToken } = require('../authUtils');
 
  describe('userController', () => {
   describe('getUserByUsernameAndPassword', () => {
@@ -420,10 +421,10 @@ describe('loanController', () => {
 
 });
 describe('loanApplicationController', () => {
-  describe('getLoanApplicationByUserId', () => {
+  describe('getAllLoanApplications', () => {
 
 
-    test('should_handle_errors_and_respond_with_a_500_status_code_and_an_error_message_getloanapplicationbyuserid', async () => {
+    test('should_handle_errors_and_respond_with_a_500_status_code_and_an_error_message_get_all_loanapplications', async () => {
        // Mock an error to be thrown when calling LoanApplication.find
        const error = new Error('Database error');
  
@@ -444,8 +445,8 @@ describe('loanApplicationController', () => {
        expect(res.status).toHaveBeenCalledWith(500);
      });
    });
-      describe('getLoanApplicationByUserId', () => {
-       test('should_return_a_loan_application_for_a_valid_userid_and_respond_with_a_200_status_code_getloanapplicationbyuserid', async () => {
+      describe('getLoanApplicationsByUserId', () => {
+       test('should_return_a_loan_application_for_a_valid_userid_and_respond_with_a_200_status_code_getloanapplicationsbyuserid', async () => {
           // Sample userId and corresponding loan application
           const userId = 'user123';
           const loanApplicationData = {
@@ -471,7 +472,7 @@ describe('loanApplicationController', () => {
           };
     
           // Call the controller function
-          await loanApplicationController.getLoanApplicationByUserId(req, res);
+          await loanApplicationController.getLoanApplicationsByUserId(req, res);
     
           // Assertions
           expect(LoanApplication.find).toHaveBeenCalledWith({ userId });
@@ -494,7 +495,7 @@ describe('loanApplicationController', () => {
           };
     
           // Call the controller function
-          await loanApplicationController.getLoanApplicationByUserId(req, res);
+          await loanApplicationController.getLoanApplicationsByUserId(req, res);
     
           // Assertions
           expect(LoanApplication.find).toHaveBeenCalledWith({ userId: 'user123' });
@@ -730,4 +731,134 @@ describe('loanApplicationController', () => {
           expect(res.json).toHaveBeenCalledWith({ message: 'Database error' });
         });
       });
+  });
+
+  describe('Loan Model Schema Validation', () => {
+    test('should_validate_a_loan_with_valid_data', async () => {
+      const validLoanData = {
+        loanType: 'Personal Loan',
+        description: 'Short-term personal loan',
+        interestRate: 5.5,
+        maximumAmount: 50000,
+      };
+  
+      const loan = new Loan(validLoanData);
+  
+      // Validate the loan data against the schema
+      await expect(loan.validate()).resolves.toBeUndefined();
+    });
+  
+    test('should_validate_a_loan_with_missing_required_fields', async () => {
+      const invalidLoanData = {
+        // Missing required fields
+      };
+  
+      const loan = new Loan(invalidLoanData);
+  
+      // Validate the loan data against the schema
+      await expect(loan.validate()).rejects.toThrowError();
+    });
+  
+  });
+  describe('LoanApplication Model Schema Validation', () => {
+    test('should_validate_a_loan_application_with_valid_data', async () => {
+      const validLoanApplicationData = {
+        userId: '123456',
+        userName: 'John Doe',
+        loanType: 'Personal Loan',
+        submissionDate: new Date(),
+        income: 50000,
+        model: new Date(),
+        purchasePrice: 100000,
+        loanStatus: 1,
+        address: '123 Main St',
+        file: '/path/to/file.pdf',
+      };
+  
+      const loanApplication = new LoanApplication(validLoanApplicationData);
+  
+      // Validate the loan application data against the schema
+      await expect(loanApplication.validate()).resolves.toBeUndefined();
+    });
+  
+    test('should_validate_a_loan_application_with_missing_required_fields', async () => {
+      const invalidLoanApplicationData = {
+        // Missing required fields
+      };
+  
+      const loanApplication = new LoanApplication(invalidLoanApplicationData);
+  
+      // Validate the loan application data against the schema
+      await expect(loanApplication.validate()).rejects.toThrowError();
+    });
+  });
+
+  describe('User Model Schema Validation', () => {
+    test('should_validate_a_user_with_valid_data', async () => {
+      const validUserData = {
+        username: 'john_doe',
+        password: 'validpassword',
+        role: 'user',
+      };
+  
+      const user = new User(validUserData);
+  
+      // Validate the user data against the schema
+      await expect(user.validate()).resolves.toBeUndefined();
+    });
+  
+    test('should_validate_a_user_with_missing_required_fields', async () => {
+      const invalidUserData = {
+        // Missing required fields
+      };
+  
+      const user = new User(invalidUserData);
+  
+      // Validate the user data against the schema
+      await expect(user.validate()).rejects.toThrowError();
+    });
+  });
+  describe('validateToken', () => {
+ 
+    test('should_respond_with_400_status_and_error_message_if_invalid_token_is_provided', () => {
+      // Mock the req, res, and next objects
+      const req = {
+        header: jest.fn().mockReturnValue('invalidToken'),
+      };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+      const next = jest.fn();
+  
+      // Call the validateToken function
+      validateToken(req, res, next);
+  
+      // Assertions
+      expect(req.header).toHaveBeenCalledWith('Authorization');
+      expect(next).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ message: 'Authentication failed' });
+    });
+  
+    test('should_respond_with_400_status_and_error_message_if_no_token_is_provided', () => {
+      // Mock the req, res, and next objects
+      const req = {
+        header: jest.fn().mockReturnValue(null),
+      };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+      const next = jest.fn();
+  
+      // Call the validateToken function
+      validateToken(req, res, next);
+  
+      // Assertions
+      expect(req.header).toHaveBeenCalledWith('Authorization');
+      expect(next).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ message: 'Authentication failed' });
+    });
   });

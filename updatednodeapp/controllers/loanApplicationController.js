@@ -4,8 +4,9 @@ const getAllLoanApplications = async (req, res) => {
   try {
 
     // Pagination parameters
+    console.log("cgetAllLoanApplicationsame",req.body)
     const page = parseInt(req.body.page) || 1; 
-    const pageSize = req.body.pageSize; 
+    const pageSize = req.body.pageSize||2; 
     // Search
     const search = req.body.searchValue;
     const sortValue = req.body.sortValue;
@@ -25,8 +26,6 @@ const getAllLoanApplications = async (req, res) => {
         statusFilterCondition,
       ],
     };
-
-    // Sorting
     const sortBy = req.body.sortBy || 'submissionDate'; // Default sorting by submissionDate
 
     const loanApplications = await LoanApplication.find(searchQuery)
@@ -34,7 +33,7 @@ const getAllLoanApplications = async (req, res) => {
       .skip((page - 1) * pageSize) 
       .limit(pageSize) 
       .exec();
-     console.log("loanApplications",loanApplications);
+    //  console.log("loanApplications",loanApplications);
     const loanApplications1 = await LoanApplication.find(searchQuery);
     res.status(200).json({ data: loanApplications, length: loanApplications1.length });
   } catch (error) {

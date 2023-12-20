@@ -166,12 +166,12 @@ function LoanApplicationForm() {
             />
           </div>
           <div>
-          <label htmlFor="file">File Upload:</label>
+          <label htmlFor="file">Proof:</label>
           <Controller
             name="file"
             control={control}
             rules={{ 
-              required: "File is required",
+              required: "Proof is required",
               validate: (value) => {
                 return !!value; // Validate file presence
               },

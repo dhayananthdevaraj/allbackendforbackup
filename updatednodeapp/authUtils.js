@@ -11,9 +11,7 @@ const generateToken = (userId) => {
 const validateToken = (req, res, next) => {
   try {
     const token = req.header('Authorization');
-
-    const decoded = jwt.verify(token, 'asdfghjkl');
-    console.log("decoded",decoded);
+    jwt.verify(token, 'asdfghjkl');
     next()
 
   } catch (error) {

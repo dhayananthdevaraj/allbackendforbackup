@@ -629,8 +629,6 @@ describe('updateBook', () => {
     expect(res.json).toHaveBeenCalledWith({ message: 'Database error' });
   });
 });
-
-
 describe('getBookById', () => {
   test('get_book_by_id_should_return_a_book_with_a_200_status_code', async () => {
     // Sample book ID and corresponding book
@@ -741,7 +739,6 @@ describe('getBookById', () => {
     expect(res.json).toHaveBeenCalledWith({ message: 'Database error' });
   });
 });
-
 describe('addBook', () => {
   test('add_book_should_add_a_book_and_respond_with_a_200_status_code_and_success_message', async () => {
     // Sample book data to be added
@@ -797,8 +794,6 @@ describe('addBook', () => {
     expect(res.json).toHaveBeenCalledWith({ message: 'Database error' });
   });
 });
-
-
 describe('Book_Schema_Validation', () => {
   test('should_be_valid_book_with_correct_data', async () => {
     const validBookData = {

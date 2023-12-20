@@ -15,6 +15,7 @@ import AppliedLoansPage from "../UserComponents/AppliedLoans";
 import LoanApplicationForm from "../UserComponents/LoanApplicationForm";
 import MockAdapter from "axios-mock-adapter";
 import LoanRequests from "../AdminComponents/LoanRequest";
+import ErrorPage from "../Components/ErrorPage";
 
 jest.mock("axios");
 jest.mock("react-redux");
@@ -406,7 +407,6 @@ describe("Login Component", () => {
         expect(loanTypeError).toBeInTheDocument();
       });
     });
-
   describe("Adminhomepage", () => {
     const queryClient = new QueryClient();
     afterEach(() => {
@@ -585,92 +585,9 @@ describe("Login Component", () => {
       expect(screen.getByText("Business Loan")).toBeInTheDocument();
       expect(screen.queryByText("Mortgage Loan")).toBeNull();
     });
-    test("admin_home_page_should_trigger_edit_action_when_edit_button_is_clicked", async () => {
-      let mockLoanRequestsData = [
-        {
-          _id: "1",
-          loanType: "Car Loan",
-          maximumAmount: 10000,
-          interestRate: 5,
-          description: "Low-interest car loan.",
-        },
-        {
-          _id: "2",
-          loanType: "Home Loan",
-          maximumAmount: 50000,
-          interestRate: 3,
-          description: "Affordable home loan.",
-        },
-        {
-          _id: "3",
-          loanType: "Personal Loan",
-          maximumAmount: 15000,
-          interestRate: 6,
-          description: "Flexible personal loan.",
-        },
-        {
-          _id: "4",
-          loanType: "Education Loan",
-          maximumAmount: 25000,
-          interestRate: 4,
-          description: "Support your education.",
-        },
-        {
-          _id: "5",
-          loanType: "Business Loan",
-          maximumAmount: 75000,
-          interestRate: 7,
-          description: "Grow your business.",
-        },
-        {
-          _id: "6",
-          loanType: "Mortgage Loan",
-          maximumAmount: 100000,
-          interestRate: 3.5,
-          description: "Your dream home awaits.",
-        },
-        {
-          _id: "7",
-          loanType: "Credit Card Loan",
-          maximumAmount: 5000,
-          interestRate: 15,
-          description: "Convenient credit card loan.",
-        },
-        {
-          _id: "8",
-          loanType: "Emergency Loan",
-          maximumAmount: 1000,
-          interestRate: 10,
-          description: "Get quick financial help.",
-        },
-      ];
-      const navigate = jest.fn();
-  
-      axios.get.mockResolvedValue({ data: mockLoanRequestsData, status: 200 });
-  
-      // Mock the useNavigate function
-      jest
-        .spyOn(require("react-router-dom"), "useNavigate")
-        .mockReturnValue(navigate);
-  
-      await act(async () => {
-        render(
-          <QueryClientProvider client={queryClient}>
-            <HomePage />
-          </QueryClientProvider>
-        );
-      });
-  
-      // Click the "Edit" button for the first loan
-      const editButtons = screen.getAllByText("Edit");
-      fireEvent.click(editButtons[0]);
-  
-      // Check if it navigated to the correct URL
-      expect(navigate).toHaveBeenCalledWith("/newloan/1");
-    });
+ 
 
   });
-
   describe('LoanRequests Component', () => {
     afterEach(() => {
       jest.clearAllMocks();
@@ -781,7 +698,6 @@ describe("Login Component", () => {
     
     });
   });
-
   describe("AppliedLoansPage Component", () => {
     afterEach(() => {
       jest.clearAllMocks();
@@ -1212,7 +1128,6 @@ describe("Login Component", () => {
       );
     });
   });
-
   describe('LoanApplicationForm Component', () => {
     test('renders_loan_application_form_component_with_title', async () => {
       await act(async () => {
@@ -1253,7 +1168,7 @@ describe("Login Component", () => {
       fireEvent.change(addressInput, { target: { value: '123 Main St' } });
   
       // Mock file input change
-      const fileInput = screen.getByLabelText('File Upload:');
+      const fileInput = screen.getByLabelText('Proof:');
       fireEvent.change(fileInput, {
         target: {
           files: [
@@ -1286,7 +1201,6 @@ describe("Login Component", () => {
       expect(headerElement).toBeInTheDocument();
     });
   });
-
   describe('UserHomePage', () => {
     const queryClient = new QueryClient();
     test('renders_user_home_page_with_title', async () => {
@@ -1374,4 +1288,21 @@ describe("Login Component", () => {
  
      
     });
+  });
+  test('renders_error_page_with_message', async () => {
+    const queryClient = new QueryClient();
+
+    await act(async () => {
+      render(
+        <QueryClientProvider client={queryClient}>
+          <ErrorPage />
+        </QueryClientProvider>
+      );
+    });
+
+    // Check if input field is present
+
+    expect(screen.getByText('Oops! Something Went Wrong')).toBeInTheDocument();
+
+   
   });

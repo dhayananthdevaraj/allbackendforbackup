@@ -24,6 +24,7 @@ const UserHomePage = () => {
 
   async function fetchAppliedLoans() {
   try{
+    
     const response = await axios.get(
       "https://8080-abfdabeabcbaedbbdbffcedacbfdaeffdedfbedfefba.premiumproject.examly.io/loanApplication/getLoanApplicationsByUserId/" +
         userId,{

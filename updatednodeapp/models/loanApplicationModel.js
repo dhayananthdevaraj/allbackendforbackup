@@ -3,45 +3,45 @@ const mongoose = require('mongoose');
 const loanApplicationSchema = new mongoose.Schema({
   userId: {
     type: String,
-    required: true,
+    required: [true, 'User ID is required'],
   },
   userName: {
     type: String,
-    required: true,
+    required: [true, 'User name is required'],
   },
   loanType: {
     type: String,
-    required: true,
+    required: [true, 'Loan type is required'],
   },
   submissionDate: {
     type: Date,
-    required: true,
+    required: [true, 'Submission date is required'],
   },
   income: {
     type: Number,
-    required: true,
+    required: [true, 'Income is required'],
   },
-  model:{
+  model: {
     type: Date,
-    required: true,
+    required: [true, 'Model is required'],
   },
-  purchasePrice:{
+  purchasePrice: {
     type: Number,
-    required: true,
+    required: [true, 'Purchase price is required'],
   },
   loanStatus: {
     type: Number,
-    required: true,
+    required: [true, 'Loan status is required'],
     default: 1,
   },
-  address:{
+  address: {
     type: String,
-    required: true,
+    required: [true, 'Address is required'],
   },
   file: {
     type: String,
-    required: true,
-  }
+    required: [true, 'File is required'],
+  },
 });
 
 const LoanApplication = mongoose.model('LoanApplication', loanApplicationSchema);
